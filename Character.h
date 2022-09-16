@@ -3,11 +3,11 @@
 class Character
 {
 public:
-    Character();
-    Vector2 getWorldPos() { return worldPos; }      // getter
-    void setScreenPos(int winWidth, int winHeight); // setter
+    Character(int winWidth, int winHeight);
+    Vector2 getWorldPos() { return worldPos; } // getter
     void tick(float deltaTime);
     void undoMovement();
+    Rectangle getCollisionRec();
 private:
     Texture2D texture{LoadTexture("characters/knight_idle_spritesheet.png")};
     Texture2D idle{LoadTexture("characters/knight_idle_spritesheet.png")};
@@ -27,4 +27,5 @@ private:
     float speed{4.f};
     float width{};
     float height{};
+    float scale{4.0f};
 };

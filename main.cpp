@@ -1,11 +1,12 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "Character.h"
+#include "Prop.h"
 
 int main()
 {
-    const float windowWidth{384};
-    const float windowHeight{384};
+    const int windowWidth{384};
+    const int windowHeight{384};
     InitWindow(windowWidth, windowHeight, "Bug Crossing");
 
     // load background
@@ -15,10 +16,13 @@ int main()
     Vector2 mapPos{0.f, 0.f};
 
     // initialize character
-    Character knight;
-    knight.setScreenPos(windowWidth, windowHeight);
+    Character knight{windowWidth, windowHeight};
 
     // call props
+    Prop props[2]{
+        Prop{Vector2{600.f, 300.f}, LoadTexture("nature_tileset/Rock.png")},
+        Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")}
+    };
 
     // call enemies
 
@@ -36,7 +40,11 @@ int main()
         // draw the map
         DrawTextureEx(map, mapPos, 0.0, mapScale, WHITE);
 
-        // draw the props
+        // draw the props using a range based array
+        for (auto prop : props)
+        {
+            prop.Render(knight.getWorldPos());
+        }
 
         // character health check
 
@@ -53,6 +61,13 @@ int main()
         }
 
         // check prop collisions
+        for (auto prop : props)
+        {
+            if (CheckCollisionRecs(prop.getCollisionRec(knight.getWorldPos()), knight.getCollisionRec()))
+            {
+                knight.undoMovement();
+            }
+        }
 
         // get enemy positions
 

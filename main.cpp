@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include "Character.h"
 #include "Prop.h"
+#include "Enemy.h"
 
 int main()
 {
@@ -21,12 +22,15 @@ int main()
     // call props
     Prop props[2]{
         Prop{Vector2{600.f, 300.f}, LoadTexture("nature_tileset/Rock.png")},
-        Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")}
-    };
+        Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")}};
 
-    // call enemies
+    Enemy goblin{
+        Vector2{1000.f, 500.f},
+        LoadTexture("characters/goblin_idle_spritesheet.png"),
+        LoadTexture("characters/goblin_run_spritesheet.png")};
 
     // set enemy target
+    goblin.setTarget(&knight);
 
     SetTargetFPS(60);
     while (!WindowShouldClose())
@@ -41,7 +45,7 @@ int main()
         DrawTextureEx(map, mapPos, 0.0, mapScale, WHITE);
 
         // draw the props using a range based array
-        for (auto prop : props)
+        for (auto prop : props) // for all 'props' in the props array (Prop class)
         {
             prop.Render(knight.getWorldPos());
         }
@@ -69,9 +73,15 @@ int main()
             }
         }
 
+        goblin.tick(GetFrameTime());
+
         // get enemy positions
 
         // attack check
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
+        {
+            if (CheckCollisionRecs(goblin.getCollisionRec(), knight.getWeaponCollisionRec())) goblin.setAlive(false);
+        }
 
         EndDrawing();
     }

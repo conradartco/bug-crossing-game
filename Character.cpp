@@ -1,75 +1,76 @@
 #include "Character.h"
 #include "raymath.h"
 
-Character::Character(int winWidth, int winHeight)
+Character::Character(int winWidth, int winHeight) :
+    windowWidth(winWidth),
+    windowHeight(winHeight)
 {
     width = texture.width / maxFrames;
     height = texture.height;
+}
 
-    screenPos = {
-        static_cast<float>(winWidth) / 2.0f - scale * (0.5f * width),
-        static_cast<float>(winHeight) / 2.0f - scale * (0.5f * height)};
+Vector2 Character::getScreenPos()
+{
+    return Vector2{
+        static_cast<float>(windowWidth) / 2.0f - scale * (0.5f * width),
+        static_cast<float>(windowHeight) / 2.0f - scale * (0.5f * height)
+    };
 }
 
 void Character::tick(float deltaTime)
 {
-    worldPosLastFrame = worldPos;
-    // initialize direction with 0
-    Vector2 direction{};
+    if (!getAlive()) return;
+
     // directional input check
     if (IsKeyDown(KEY_A))
-        direction.x -= 1.0; // a vector pointing to the left with a magnitude of 1
+        velocity.x -= 1.0; // a vector pointing to the left with a magnitude of 1
     if (IsKeyDown(KEY_D))
-        direction.x += 1.0; // a vector pointing to the right with a magnitude of 1
+        velocity.x += 1.0; // a vector pointing to the right with a magnitude of 1
     if (IsKeyDown(KEY_W))
-        direction.y -= 1.0; // a vector pointing to up with a magnitude of 1
+        velocity.y -= 1.0; // a vector pointing to up with a magnitude of 1
     if (IsKeyDown(KEY_S))
-        direction.y += 1.0; // a vector pointing to down with a magnitude of 1
+        velocity.y += 1.0; // a vector pointing to down with a magnitude of 1
 
-    // use direction to move the map
-    // Vector2Length returns a float so we can determine the length of movement direction // if zero, no movement
-    if (Vector2Length(direction) != 0.0)
-    {
-        // set worldPos = worldPos - direction
-        // scale the movement using speed and the normalized direction
-        worldPos = Vector2Add(worldPos, Vector2Scale(Vector2Normalize(direction), speed));
-        // check and change facing direction
-        direction.x < 0.f ? rightLeft = -1.f : rightLeft = 1.f;
-        texture = run;
-    }
-    else
-    {
-        texture = idle;
-    }
-    // update animation frame
-    runningTime += deltaTime;
-    // increase frame count per second
-    if (runningTime >= updateTime)
-    {
-        frame++;
-        runningTime = 0.f;
-        if (frame > maxFrames)
-            frame = 0;
-    }
-    // initialize the location on the spritesheet and multiply rightLeft to scale, flipping the value and changing direction
-    Rectangle source{frame * width, 0.f, rightLeft * width, height};
-    // the location in the window to draw the character
-    Rectangle dest{screenPos.x, screenPos.y, scale * width, scale * height};
-    // draw the character
-    DrawTexturePro(texture, source, dest, Vector2{}, 0.f, WHITE);
-}
+    BaseCharacter::tick(deltaTime);
 
-void Character::undoMovement()
-{
-    worldPos = worldPosLastFrame;
-}
+    Vector2 origin{};
+    Vector2 offset{};
+    float rotation{};
+    if (rightLeft > 0.f) // facing the right
+    {
+        origin = {0.f, weapon.height * scale};
+        offset = {35.f, 55.f};
+        weaponCollisionRec = {
+            getScreenPos().x + offset.x,
+            getScreenPos().y + offset.y - weapon.height * scale,
+            weapon.width * scale,
+            weapon.height * scale
+        };
+        IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? rotation = 25.f : rotation = 0.f;
+    }
+    else // facing left
+    {
+        origin = {weapon.width * scale, weapon.height * scale};
+        offset = {25.f, 55.f};
+        weaponCollisionRec = {
+            getScreenPos().x + offset.x - weapon.width * scale,
+            getScreenPos().y + offset.y - weapon.height * scale,
+            weapon.width * scale,
+            weapon.height * scale
+        };
+        IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? rotation = -25.f : rotation = 0.f;
+    }
 
-Rectangle Character::getCollisionRec()
-{
-    return Rectangle{
-        screenPos.x,
-        screenPos.y,
-        width * scale,
-        height * scale
-    };
+    // draw the sword
+    Rectangle source{0.f, 0.f, static_cast<float>(weapon.width) * rightLeft, static_cast<float>(weapon.height)};
+    Rectangle dest{getScreenPos().x + offset.x, getScreenPos().y + offset.y, weapon.width * scale, weapon.height * scale};
+    DrawTexturePro(weapon, source, dest, origin, rotation, WHITE);
+
+    DrawRectangleLines(
+        weaponCollisionRec.x,
+        weaponCollisionRec.y,
+        weaponCollisionRec.width,
+        weaponCollisionRec.height,
+        RED
+    );
 }

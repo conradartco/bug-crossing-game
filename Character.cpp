@@ -1,9 +1,13 @@
 #include "Character.h"
 #include "raymath.h"
+#include <chrono>
+#include <thread>
 
-Character::Character(int winWidth, int winHeight) :
-    windowWidth(winWidth),
-    windowHeight(winHeight)
+using namespace std::this_thread;
+using namespace std::chrono;
+
+Character::Character(int winWidth, int winHeight) : windowWidth(winWidth),
+                                                    windowHeight(winHeight)
 {
     width = texture.width / maxFrames;
     height = texture.height;
@@ -13,13 +17,13 @@ Vector2 Character::getScreenPos()
 {
     return Vector2{
         static_cast<float>(windowWidth) / 2.0f - scale * (0.5f * width),
-        static_cast<float>(windowHeight) / 2.0f - scale * (0.5f * height)
-    };
+        static_cast<float>(windowHeight) / 2.0f - scale * (0.5f * height)};
 }
 
 void Character::tick(float deltaTime)
 {
-    if (!getAlive()) return;
+    if (!getAlive())
+        return;
 
     // directional input check
     if (IsKeyDown(KEY_A))
@@ -44,8 +48,7 @@ void Character::tick(float deltaTime)
             getScreenPos().x + offset.x,
             getScreenPos().y + offset.y - weapon.height * scale,
             weapon.width * scale,
-            weapon.height * scale
-        };
+            weapon.height * scale};
         IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? rotation = 25.f : rotation = 0.f;
     }
     else // facing left
@@ -56,8 +59,7 @@ void Character::tick(float deltaTime)
             getScreenPos().x + offset.x - weapon.width * scale,
             getScreenPos().y + offset.y - weapon.height * scale,
             weapon.width * scale,
-            weapon.height * scale
-        };
+            weapon.height * scale};
         IsMouseButtonDown(MOUSE_LEFT_BUTTON) ? rotation = -25.f : rotation = 0.f;
     }
 
@@ -75,10 +77,11 @@ void Character::tick(float deltaTime)
     // );
 }
 
-
 void Character::takeDamage(float damage)
 {
     health -= damage;
+    setHitTime(GetFrameTime());
+
     if (health <= 0.f)
     {
         setAlive(false);

@@ -25,7 +25,11 @@ void Enemy::tick(float deltaTime)
     BaseCharacter::tick(deltaTime);
 
     // call contactDamage()
-    if (CheckCollisionRecs(target->getCollisionRec(), getCollisionRec())) target->takeDamage(contactDamage);
+    if (CheckCollisionRecs(target->getCollisionRec(), getCollisionRec()))
+    {
+        target->takeDamage(contactDamage);
+        setAlive(false);
+    }
 
 }
 

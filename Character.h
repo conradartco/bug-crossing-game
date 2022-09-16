@@ -16,12 +16,14 @@ public:
     // making this a const function is a promise to never change any members of this class
     float getHealth() const { return health; }
     void takeDamage(float damage);
+    void setHitTime(float deltaTime) { hitTime = deltaTime; };
 private:
     int windowWidth{};
     int windowHeight{};
     Texture2D weapon{LoadTexture("characters/weapon_sword.png")};
     Rectangle weaponCollisionRec{};
     float health{3.f};
+    float hitTime{};
 };
 
 #endif

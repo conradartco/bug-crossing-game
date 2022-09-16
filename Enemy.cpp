@@ -19,8 +19,14 @@ void Enemy::tick(float deltaTime)
 
     // get toTarget
     velocity = Vector2Subtract(target->getScreenPos(), getScreenPos());
+    // check length of velocity - length between enemy and character
+    if (Vector2Length(velocity) < radius) velocity = {};
     // draw the enemy
     BaseCharacter::tick(deltaTime);
+
+    // call contactDamage()
+    if (CheckCollisionRecs(target->getCollisionRec(), getCollisionRec())) target->takeDamage(contactDamage);
+
 }
 
 Vector2 Enemy::getScreenPos()

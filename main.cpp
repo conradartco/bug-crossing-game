@@ -3,6 +3,7 @@
 #include "Character.h"
 #include "Prop.h"
 #include "Enemy.h"
+#include <string>
 
 int main()
 {
@@ -29,8 +30,20 @@ int main()
         LoadTexture("characters/goblin_idle_spritesheet.png"),
         LoadTexture("characters/goblin_run_spritesheet.png")};
 
+    Enemy slime{
+        Vector2{500.f, 900.f},
+        LoadTexture("characters/slime_idle_spritesheet.png"),
+        LoadTexture("characters/slime_run_spritesheet.png")};
+
+    Enemy *enemies[]{
+        &goblin,
+        &slime};
+
     // set enemy target
-    goblin.setTarget(&knight);
+    for (auto enemy : enemies)
+    {
+        enemy->setTarget(&knight);
+    }
 
     SetTargetFPS(60);
     while (!WindowShouldClose())
@@ -51,6 +64,18 @@ int main()
         }
 
         // character health check
+        if (!knight.getAlive()) // character is not alive
+        {
+            DrawText("Game Over!", 55.f, 45.f, 40, RED);
+            EndDrawing();
+            continue;
+        }
+        else // character is alive
+        {
+            std::string knightsHealth = "Health: ";
+            knightsHealth.append(std::to_string(knight.getHealth()), 0, 1);
+            DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, WHITE);
+        }
 
         // call the character
         knight.tick(GetFrameTime());
@@ -71,19 +96,33 @@ int main()
             {
                 knight.undoMovement();
             }
+
+            if (CheckCollisionRecs(prop.getCollisionRec(knight.getWorldPos()), goblin.getCollisionRec()))
+            {
+                goblin.undoMovement();
+            }
         }
 
-        goblin.tick(GetFrameTime());
+        for (auto enemy : enemies)
+        {
+            enemy->tick(GetFrameTime());
+        }
 
         // get enemy positions
 
         // attack check
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
         {
-            if (CheckCollisionRecs(goblin.getCollisionRec(), knight.getWeaponCollisionRec())) goblin.setAlive(false);
+            for (auto enemy : enemies)
+            {
+                if (CheckCollisionRecs(enemy->getCollisionRec(), knight.getWeaponCollisionRec()))
+                {
+                    enemy->setAlive(false);
+                }
+            }
         }
-
         EndDrawing();
     }
+    UnloadTexture(map);
     CloseWindow();
 }

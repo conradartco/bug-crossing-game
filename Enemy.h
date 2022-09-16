@@ -11,4 +11,6 @@ public:
     virtual Vector2 getScreenPos() override;
 private:
     Character* target;
+    float contactDamage{1.f};
+    float radius{35.f};
 };

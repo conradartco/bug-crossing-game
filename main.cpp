@@ -17,6 +17,11 @@ int main()
     // having this out of the while loop saves the value between iterations
     Vector2 mapPos{0.f, 0.f};
 
+    // load heart container
+    Texture2D heartFull = LoadTexture("nature_tileset/heart_container_full.png");
+    Texture2D heartEmpty = LoadTexture("nature_tileset/heart_container_empty.png");
+    Vector2 heartPos{0.f, 0.f};
+
     // initialize character
     Character knight{windowWidth, windowHeight};
 
@@ -30,6 +35,11 @@ int main()
         LoadTexture("characters/goblin_idle_spritesheet.png"),
         LoadTexture("characters/goblin_run_spritesheet.png")};
 
+    Enemy goblin2{
+        Vector2{800.f, 1200.f},
+        LoadTexture("characters/goblin_idle_spritesheet.png"),
+        LoadTexture("characters/goblin_run_spritesheet.png")};
+
     Enemy slime{
         Vector2{500.f, 900.f},
         LoadTexture("characters/slime_idle_spritesheet.png"),
@@ -37,6 +47,7 @@ int main()
 
     Enemy *enemies[]{
         &goblin,
+        &goblin2,
         &slime};
 
     // set enemy target
@@ -66,15 +77,36 @@ int main()
         // character health check
         if (!knight.getAlive()) // character is not alive
         {
-            DrawText("Game Over!", 55.f, 45.f, 40, RED);
+            DrawText("Game Over!", 65.f, windowHeight/2.f, 40, RED);
+            DrawTextureEx(heartEmpty, heartPos, 0.f, mapScale, WHITE);
+            DrawTextureEx(heartEmpty, {(heartPos.x + heartFull.width * mapScale), heartPos.y}, 0.f, mapScale, WHITE);
+            DrawTextureEx(heartEmpty, {(heartPos.x + heartFull.width * mapScale) * 2.f, heartPos.y}, 0.f, mapScale, WHITE);
             EndDrawing();
             continue;
         }
         else // character is alive
         {
-            std::string knightsHealth = "Health: ";
-            knightsHealth.append(std::to_string(knight.getHealth()), 0, 1);
-            DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, WHITE);
+            if (knight.getHealth() > 2.f)
+            {
+                DrawTextureEx(heartFull, heartPos, 0.f, mapScale, WHITE);
+                DrawTextureEx(heartFull, {(heartPos.x + heartFull.width * mapScale), heartPos.y}, 0.f, mapScale, WHITE);
+                DrawTextureEx(heartFull, {(heartPos.x + heartFull.width * mapScale) * 2.f, heartPos.y}, 0.f, mapScale, WHITE);
+            }
+            else if (knight.getHealth() > 1.f)
+            {
+                DrawTextureEx(heartFull, heartPos, 0.f, mapScale, WHITE);
+                DrawTextureEx(heartFull, {(heartPos.x + heartFull.width * mapScale), heartPos.y}, 0.f, mapScale, WHITE);
+                DrawTextureEx(heartEmpty, {(heartPos.x + heartFull.width * mapScale) * 2.f, heartPos.y}, 0.f, mapScale, WHITE);
+            }
+            else if (knight.getHealth() > 0.f)
+            {
+                DrawTextureEx(heartFull, heartPos, 0.f, mapScale, WHITE);
+                DrawTextureEx(heartEmpty, {(heartPos.x + heartFull.width * mapScale), heartPos.y}, 0.f, mapScale, WHITE);
+                DrawTextureEx(heartEmpty, {(heartPos.x + heartFull.width * mapScale) * 2.f, heartPos.y}, 0.f, mapScale, WHITE);
+            }
+            // std::string knightsHealth = "Health: ";
+            // knightsHealth.append(std::to_string(knight.getHealth()), 0, 1);
+            // DrawText(knightsHealth.c_str(), 55.f, 45.f, 40, WHITE);
         }
 
         // call the character
@@ -121,8 +153,11 @@ int main()
                 }
             }
         }
+
         EndDrawing();
     }
     UnloadTexture(map);
+    UnloadTexture(heartFull);
+    UnloadTexture(heartEmpty);
     CloseWindow();
 }

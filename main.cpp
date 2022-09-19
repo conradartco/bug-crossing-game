@@ -26,9 +26,12 @@ int main()
     Character knight{windowWidth, windowHeight};
 
     // call props
-    Prop props[2]{
+    Prop props[]{
         Prop{Vector2{600.f, 300.f}, LoadTexture("nature_tileset/Rock.png")},
-        Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")}};
+        Prop{Vector2{400.f, 500.f}, LoadTexture("nature_tileset/Log.png")},
+        Prop{Vector2{1000.f, 500.f}, LoadTexture("nature_tileset/Log.png")},
+        Prop{Vector2{800.f, 1200.f}, LoadTexture("nature_tileset/Log.png")},
+        Prop{Vector2{500.f, 900.f}, LoadTexture("nature_tileset/Log.png")}};
 
     Enemy goblin{
         Vector2{1000.f, 500.f},
@@ -56,6 +59,9 @@ int main()
         enemy->setTarget(&knight);
     }
 
+    float startTime = GetTime();
+    float logTime = GetFrameTime();
+
     SetTargetFPS(60);
     while (!WindowShouldClose())
     {
@@ -68,6 +74,19 @@ int main()
         // draw the map
         DrawTextureEx(map, mapPos, 0.0, mapScale, WHITE);
 
+        // dev tests
+        float currentTime = GetTime();
+
+        std::string getTimeDisplay = "startTime: ";
+        getTimeDisplay.append(std::to_string(startTime), 0, 5);
+        DrawText(getTimeDisplay.c_str(), 10.f, 300.f, 30, WHITE);
+        std::string currentTimeDisplay = "currentTime: ";
+        currentTimeDisplay.append(std::to_string(currentTime), 0, 5);
+        DrawText(currentTimeDisplay.c_str(), 10.f, 325.f, 30, WHITE);
+        std::string logTimeDisplay = "logTime: ";
+        logTimeDisplay.append(std::to_string(logTime), 0, 5);
+        DrawText(logTimeDisplay.c_str(), 10.f, 350.f, 30, WHITE);
+
         // draw the props using a range based array
         for (auto prop : props) // for all 'props' in the props array (Prop class)
         {
@@ -77,7 +96,7 @@ int main()
         // character health check
         if (!knight.getAlive()) // character is not alive
         {
-            DrawText("Game Over!", 65.f, windowHeight/2.f, 40, RED);
+            DrawText("Game Over!", 65.f, windowHeight / 2.f, 40, RED);
             DrawTextureEx(heartEmpty, heartPos, 0.f, mapScale, WHITE);
             DrawTextureEx(heartEmpty, {(heartPos.x + heartFull.width * mapScale), heartPos.y}, 0.f, mapScale, WHITE);
             DrawTextureEx(heartEmpty, {(heartPos.x + heartFull.width * mapScale) * 2.f, heartPos.y}, 0.f, mapScale, WHITE);
@@ -135,10 +154,37 @@ int main()
             }
         }
 
-        for (auto enemy : enemies)
+        if (currentTime >= startTime + 8.f)
         {
-            enemy->tick(GetFrameTime());
+            for (auto enemy : enemies) 
+            {
+                 enemy->tick(GetFrameTime());
+                 if (!enemy->getAlive())
+                 {
+                     logTime = currentTime;
+                    Enemy* slime; 
+                 }
+            }
+            if (logTime + 8.f <= currentTime)
+            {
+                // new Enemy*;
+                // logTime = currentTime;
+            }
         }
+
+        // for (auto enemy : enemies)
+        // {
+        //     if (currentTime >= startTime + 10.f)
+        //     {
+        //         enemy->tick(GetFrameTime());
+        //     }
+
+        //     if (!enemy->getAlive())
+        //     {
+        //         logTime = GetTime();
+        //         new Enemy *;
+        //     }
+        // }
 
         // get enemy positions
 

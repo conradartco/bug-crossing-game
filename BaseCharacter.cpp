@@ -24,9 +24,6 @@ Rectangle BaseCharacter::getCollisionRec()
 void BaseCharacter::tick(float deltaTime)
 {
     worldPosLastFrame = worldPos;
-
-
-
     // update animation frame
     runningTime += deltaTime;
     // increase frame count per second

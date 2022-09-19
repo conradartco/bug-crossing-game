@@ -12,6 +12,7 @@ public:
     Rectangle getCollisionRec();
     // virtual marks an override function in a child class // + override at the end of the child class inheriting this
     virtual void tick(float deltaTime);
+    float getRunningTime() { return runningTime; }
     virtual Vector2 getScreenPos() = 0;
     bool getAlive() { return alive; }
     void setAlive(bool isAlive) { alive = isAlive; }
